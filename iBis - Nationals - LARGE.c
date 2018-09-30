@@ -9,6 +9,7 @@
 
 #include "hitechnic-irseeker-v2.h"
 #include "hitechnic-compass.h"
+
 #define SHORTSTR 130 // Ball Strength when it's close (for multiplier) (150)(180)
 #define FARSTR 60 // Ball strength when it is far (for multiplier) (30)
 #define MINSTR 10 // Ultra-weak IR signal threshold
@@ -76,12 +77,11 @@ task main()
 		int moveAngle = 0; // Variable MoveAngle is established
 
 		displayTextLine (9, "%d", ballStrength);
-
 		displayTextLine (5, "%d", ballAngle);
 		displayTextLine (6, "%d, %d", frontStr, backStr);
 
 		/* This section controls how the robot should move dependent on the strength and direction of the ball. In this section,
-		'Sign' is used to detetrmine the side of the robot that the ball is in. The multiplier determines at the size of the orbit,
+		'Sign' is used to detetrmine the side of the robot that the ball is in. The multiplier determines at the size of the orbit around the ball,
 		and this value is added in order to make the robot orbit around the ball*/
 		int moveSpeed = MOVESPEED; //Setting the moveSpeed of the robot to the above defined value
 
