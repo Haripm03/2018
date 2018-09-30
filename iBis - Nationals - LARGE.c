@@ -179,7 +179,8 @@ void move(float angle, float speed, float rotation)// Intialising the function m
 	float bRightspeed = -b;
 	float fRightspeed = -a;
 	float bLeftspeed = a;
-	// Finding the absolute maximum distance required for the motors
+
+	// Finding the absolute maximum of the motors
 	float maxSpeed = max(fabs(fLeftspeed), fabs(bRightspeed));
 	maxSpeed = max(fabs(maxSpeed), fabs(fRightspeed));
 	maxSpeed = max(fabs(maxSpeed), fabs(bLeftspeed));
