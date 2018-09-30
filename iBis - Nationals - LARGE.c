@@ -199,7 +199,7 @@ void move(float angle, float speed, float rotation)// Intialising the function m
 	maxSpeed = max (abs(maxSpeed), abs(bLeftspeed));
 
 
-	if (maxSpeed > 100) //If the maximum is greater than 100 it reduces the motor values in proportion
+	if (maxSpeed > 100) //Reducing the speed of the motors in proportion, if the speed is greater than 100.
 	{
 		fLeftspeed = fLeftspeed / maxSpeed * 100;
 		bRightspeed = bRightspeed / maxSpeed * 100;
