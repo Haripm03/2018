@@ -1,5 +1,6 @@
 #pragma config(Sensor, S1,     frontIR,        sensorEV3_GenericI2C)
 #pragma config(Sensor, S2,     backIR,         sensorEV3_GenericI2C)
+#pragma config(Sensor, S3,     ultrasonic,     sensorEV3_Ultrasonic)
 #pragma config(Sensor, S4,     compass,        sensorEV3_GenericI2C)
 #pragma config(Motor,  motorA,          frontRight,    tmotorEV3_Large, PIDControl, encoder)
 #pragma config(Motor,  motorB,          frontLeft,     tmotorEV3_Large, PIDControl, encoder)
@@ -25,6 +26,7 @@ int backDir; // Directions - backIR
 int backStr; // Strength - backIR
 int frontStr; // Strength - frontIR
 int current; // Current Heading - Compass
+int wallDis;
 
 /* Declaring the functions.*/
 float max (float a, float b); // Maximum Value
@@ -69,6 +71,7 @@ task main()
 		backStr = irSeeker2.enhStrength;
 
 		current = 2 * SensorValue(compass); // Current heading of robot is continuously found
+		wallDis = SensorValue(ultrasonic);
 
 		int ballAngle = angle(frontDir, backDir, frontStr, backStr); // The Ball Angle is derived through the function angle
 
@@ -120,7 +123,18 @@ task main()
 			rotation += 360;
 		}
 		rotation *= COMPMULTI; //The rotation value is multiplied by the predefined muliplier, in order to change the sensitivity of the rotation
-		move(moveAngle, moveSpeed , rotation); // Starting the move function, with the parameters of moveAngle, moveSpeed and rotation
+
+		if (wallDis > 86)
+		{
+			motor[frontLeft] = 0 +rotation;
+			motor[backRight] = 0 +rotation;
+			motor[backLeft] = 0 + rotation;
+			motor[frontRight] = 0 +  rotation;
+		}
+		else
+		{
+			move(-moveAngle, moveSpeed , rotation); // Starting the move function, with the parameters of moveAngle, moveSpeed and rotation
+		}
 		displayTextLine (8, "%d", rotation);
 		writeDebugStreamLine("BallAngle: %d. Rotation: %d. MoveAngle: %d. FDir: %d. BDir: %d. FStr: %d. Bstr %d. Target %d. Current %d", ballAngle, rotation, moveAngle, frontDir, backDir, frontStr, backStr,target, current);
 	}
