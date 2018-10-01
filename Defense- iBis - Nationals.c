@@ -16,7 +16,8 @@
 #define MINSTR 10 // Ultra-weak IR signal threshold
 #define STRAIGHTSTR 200 // To move forward (for moveAngle)
 #define MOVESPEED 100 //Movement Speed of robot
-#define COMPMULTI 0.9 //Compass Multiplier (0.7)
+#define COMPMULTI 0.7 //Compass Multiplier (0.7)
+#define SPEED 50
 
 
 /* Global Variables*/
@@ -126,10 +127,10 @@ task main()
 
 		if (wallDis > 86)
 		{
-			motor[frontLeft] = 0 +rotation;
-			motor[backRight] = 0 +rotation;
-			motor[backLeft] = 0 + rotation;
-			motor[frontRight] = 0 +  rotation;
+			motor[frontLeft] = -40 +rotation;
+			motor[backRight] = 40 +rotation;
+			motor[backLeft] = -40 + rotation;
+			motor[frontRight] = -40 +  rotation;
 		}
 		else
 		{
