@@ -1,5 +1,6 @@
 #pragma config(Sensor, S1,     frontIR,        sensorEV3_GenericI2C)
 #pragma config(Sensor, S2,     backIR,         sensorEV3_GenericI2C)
+#pragma config(Sensor, S3,     ultrasonic,     sensorEV3_Ultrasonic)
 #pragma config(Sensor, S4,     compass,        sensorEV3_GenericI2C)
 #pragma config(Motor,  motorA,          frontRight,    tmotorEV3_Large, PIDControl, encoder)
 #pragma config(Motor,  motorB,          frontLeft,     tmotorEV3_Large, PIDControl, encoder)
@@ -14,8 +15,9 @@
 #define FARSTR 30 // Ball strength when it is far (for multiplier) (30)
 #define MINSTR 10 // Ultra-weak IR signal threshold
 #define STRAIGHTSTR 200 // To move forward (for moveAngle)
-#define MOVESPEED 50 //Movement Speed of robot
-#define COMPMULTI 1.25 //Compass Multiplier (0.7)
+#define MOVESPEED 100 //Movement Speed of robot
+#define COMPMULTI 0.55 //Compass Multiplier (0.7)
+#define BACKSPEED 40
 
 
 /* Global Variables*/
@@ -25,6 +27,8 @@ int backDir; // Directions - backIR
 int backStr; // Strength - backIR
 int frontStr; // Strength - frontIR
 int current; // Current Heading - Compass
+int originalwallDis;
+int wallDis;
 
 /* Declaring the functions.*/
 float max (float a, float b); // Maximum Value
@@ -76,9 +80,13 @@ task main()
 
 		int moveAngle = 0; // Variable MoveAngle is established
 
+		originalwallDis = SensorValue(ultrasonic);
+
 		displayTextLine (9, "%d", ballStrength);
 		displayTextLine (5, "%d", ballAngle);
 		displayTextLine (6, "%d, %d", frontStr, backStr);
+
+		int backSpeed = BACKSPEED;
 
 		/* This section controls how the robot should move dependent on the strength and direction of the ball. In this section,
 		'Sign' is used to detetrmine the side of the robot that the ball is in. The multiplier determines at the size of the orbit around the ball,
@@ -121,8 +129,17 @@ task main()
 		}
 		rotation *= COMPMULTI; //The rotation value is multiplied by the predefined muliplier, in order to change the sensitivity of the rotation
 
-		move(-moveAngle, -moveSpeed , -rotation); // Starting the move function, with the parameters of -moveAngle, -moveSpeed and -rotation
+		wallDis = cosDegrees (rotation) * originalwallDis;
 
+		if (wallDis > 40)
+		{
+
+			move (-180, -moveSpeed, -rotation);
+		}
+		else
+		{
+			move(-moveAngle, -moveSpeed , -rotation); // Starting the move function, with the parameters of moveAngle, moveSpeed and rotation
+		}
 		displayTextLine (8, "%d", rotation);
 		writeDebugStreamLine("BallAngle: %d. Rotation: %d. MoveAngle: %d. FDir: %d. BDir: %d. FStr: %d. Bstr %d. Target %d. Current %d", ballAngle, rotation, moveAngle, frontDir, backDir, frontStr, backStr,target, current);
 	}

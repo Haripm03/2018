@@ -9,7 +9,7 @@
 
 #include "hitechnic-compass.h"
 
-#define SPEED 5
+#define SPEED 10
 
 tHTMC HTcompass;
 

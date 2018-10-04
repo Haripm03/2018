@@ -1,6 +1,5 @@
 #pragma config(Sensor, S1,     frontIR,        sensorEV3_GenericI2C)
 #pragma config(Sensor, S2,     backIR,         sensorEV3_GenericI2C)
-#pragma config(Sensor, S3,     ultrasonic,     sensorEV3_Ultrasonic)
 #pragma config(Sensor, S4,     compass,        sensorEV3_GenericI2C)
 #pragma config(Motor,  motorA,          frontRight,    tmotorEV3_Large, PIDControl, encoder)
 #pragma config(Motor,  motorB,          frontLeft,     tmotorEV3_Large, PIDControl, encoder)
@@ -16,8 +15,7 @@
 #define MINSTR 10 // Ultra-weak IR signal threshold
 #define STRAIGHTSTR 200 // To move forward (for moveAngle)
 #define MOVESPEED 100 //Movement Speed of robot
-#define COMPMULTI 0.7 //Compass Multiplier (0.7)
-#define SPEED 50
+#define COMPMULTI 0.9 //Compass Multiplier (0.7)
 
 
 /* Global Variables*/
@@ -27,7 +25,6 @@ int backDir; // Directions - backIR
 int backStr; // Strength - backIR
 int frontStr; // Strength - frontIR
 int current; // Current Heading - Compass
-int wallDis;
 
 /* Declaring the functions.*/
 float max (float a, float b); // Maximum Value
@@ -72,7 +69,6 @@ task main()
 		backStr = irSeeker2.enhStrength;
 
 		current = 2 * SensorValue(compass); // Current heading of robot is continuously found
-		wallDis = SensorValue(ultrasonic);
 
 		int ballAngle = angle(frontDir, backDir, frontStr, backStr); // The Ball Angle is derived through the function angle
 
@@ -124,18 +120,7 @@ task main()
 			rotation += 360;
 		}
 		rotation *= COMPMULTI; //The rotation value is multiplied by the predefined muliplier, in order to change the sensitivity of the rotation
-
-		if (wallDis > 86)
-		{
-			motor[frontLeft] = -40 +rotation;
-			motor[backRight] = 40 +rotation;
-			motor[backLeft] = -40 + rotation;
-			motor[frontRight] = -40 +  rotation;
-		}
-		else
-		{
-			move(-moveAngle, moveSpeed , rotation); // Starting the move function, with the parameters of moveAngle, moveSpeed and rotation
-		}
+		move(moveAngle, moveSpeed , rotation); // Starting the move function, with the parameters of moveAngle, moveSpeed and rotation
 		displayTextLine (8, "%d", rotation);
 		writeDebugStreamLine("BallAngle: %d. Rotation: %d. MoveAngle: %d. FDir: %d. BDir: %d. FStr: %d. Bstr %d. Target %d. Current %d", ballAngle, rotation, moveAngle, frontDir, backDir, frontStr, backStr,target, current);
 	}
@@ -190,10 +175,10 @@ void move(float angle, float speed, float rotation)// Intialising the function m
 	angle = 45 - angle;// This is since the motors are at a 45 degree angle, in relation to the position of the IR sensors (X&Y axis)
 	float a = cosDegrees(angle); // Motor direction A is equal to the distance required, which is derived using trigonometry (cosine)
 	float b = sinDegrees(angle);// Motor direction B is equal to the distance required, which is derived using trigonometry (sine)
-	float fLeftspeed = b;
-	float bRightspeed = -b;
-	float fRightspeed = -a;
-	float bLeftspeed = a;
+	float fLeftspeed = a; // Motor frontLeft's speed is set to -a
+	float bRightspeed = -a; // Motor backRight's speed is set to a
+	float fRightspeed = -b; // Motor frontRight's speed is set to b
+	float bLeftspeed = b; // Motor backLeft's speed is set to -b
 
 	// Finding the absolute maximum of the motors
 	float maxSpeed = max(fabs(fLeftspeed), fabs(bRightspeed));
@@ -252,11 +237,11 @@ int angle(int frontDir, int backDir, int frontStr, int backStr)
 	int returnAngle = 0; //Variable returnAngle is established
 	if (frontStr > backStr) //If the strength reading is greater on the frontIR
 	{
-		returnAngle = (frontDir-5)*(180/7); // The angle is calculated, using only 7 of the 9 directions given by the frontIR
+		returnAngle = -(frontDir-5)*(180/7); // The angle is calculated, using only 7 of the 9 directions given by the frontIR
 	}
 	else
 	{
-		returnAngle = (180 + (backDir-5)*(180/7));// The angle is calculated, using only 7 of the 9 directions given by the backIR
+		returnAngle = (180 - (backDir-5)*(180/7));// The angle is calculated, using only 7 of the 9 directions given by the backIR
 	}
 
 	/* This sets the angle of the ball in a range of -180 to 180*/
